@@ -22,7 +22,6 @@ CREATE
     name: "Meera",
     role: "Data Engineer"
   }),
-
   (graphApi:Project {
     id: "project-1",
     name: "Graph API",
@@ -38,7 +37,6 @@ CREATE
     name: "Recommendation Engine",
     status: "active"
   }),
-
   (node:Technology {
     id: "tech-1",
     name: "Node.js",
@@ -58,35 +56,28 @@ CREATE
     id: "tech-4",
     name: "Python",
     category: "backend"
-  });
+  })
 
 CREATE
   (rahul)-[:WORKS_ON]->(graphApi),
   (rahul)-[:KNOWS]->(node),
   (rahul)-[:KNOWS]->(neo4j),
-
   (priya)-[:WORKS_ON]->(dashboard),
   (priya)-[:KNOWS]->(react),
-
   (arjun)-[:WORKS_ON]->(graphApi),
   (arjun)-[:WORKS_ON]->(dashboard),
   (arjun)-[:KNOWS]->(node),
   (arjun)-[:KNOWS]->(react),
-
   (meera)-[:WORKS_ON]->(recommendation),
   (meera)-[:KNOWS]->(python),
   (meera)-[:KNOWS]->(neo4j),
-
   (graphApi)-[:USES]->(node),
   (graphApi)-[:USES]->(neo4j),
-
   (dashboard)-[:USES]->(react),
   (dashboard)-[:DEPENDS_ON]->(graphApi),
-
   (recommendation)-[:USES]->(python),
   (recommendation)-[:USES]->(neo4j),
   (recommendation)-[:DEPENDS_ON]->(graphApi),
-
   (rahul)-[:COLLABORATES_WITH]->(arjun),
   (arjun)-[:COLLABORATES_WITH]->(priya),
   (meera)-[:COLLABORATES_WITH]->(rahul);
