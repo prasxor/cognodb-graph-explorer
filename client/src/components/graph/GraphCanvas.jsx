@@ -57,15 +57,18 @@ function getNodeSize(node) {
   const name = String(node?.name ?? "Node");
   const category = String(node?.label ?? "Node");
 
-  const nameWidth = name.length * 8.7;
-  const categoryWidth = category.length * 6.4;
+  // Width is driven by the longest piece of content.
+  const categoryWidth = category.length * 6.5 + 42;
+  const titleWidth = name.length * 9 + 40;
+
+  const width = Math.min(
+    380,
+    Math.max(190, categoryWidth, titleWidth),
+  );
 
   return {
-    width: Math.min(
-      380,
-      Math.max(210, Math.max(nameWidth + 56, categoryWidth + 72)),
-    ),
-    height: 82,
+    width,
+    height: 122,
   };
 }
 
@@ -924,205 +927,234 @@ function GraphCanvas({ data, selectedNodeId, onNodeSelect }) {
               NODES
               ================================================== */}
 
-          {nodes.map((node) => {
-            const position = positions[node.id];
+{nodes.map((node) => {
+  const position = positions[node.id];
 
-            if (!position) {
-              return null;
-            }
+  if (!position) {
+    return null;
+  }
 
-            const { width, height } = getNodeSize(node);
+  const { width, height } = getNodeSize(node);
 
-            const selected = node.id === selectedNodeId;
+  const selected = node.id === selectedNodeId;
+  const visible = connectedNodeIds.has(node.id);
+  const dragging = draggingNodeId === node.id;
 
-            const visible = connectedNodeIds.has(node.id);
+  /*
+   * Remove unrelated nodes during focus mode.
+   */
+  if (selectedNodeId && !visible) {
+    return null;
+  }
 
-            const dragging = draggingNodeId === node.id;
+  const category = String(node.label ?? "Node").toLowerCase();
 
-            /*
-             * Remove unrelated nodes
-             * during focus mode.
-             */
-            if (selectedNodeId && !visible) {
-              return null;
-            }
+  const categoryLabel = getNodeLabel(node.label);
 
-            return (
-              <g
-                key={node.id}
-                data-graph-node
-                transform={`
-                    translate(
-                      ${position.x - width / 2}
-                      ${position.y - height / 2}
-                    )
-                  `}
-                className={dragging ? "cursor-grabbing" : "cursor-grab"}
-                onPointerDown={(event) => handleNodePointerDown(event, node)}
-              >
-                {/* Selected glow */}
-                {selected && (
-                  <rect
-                    x="-10"
-                    y="-10"
-                    width={width + 20}
-                    height={height + 20}
-                    rx="22"
-                    fill="none"
-                    stroke="var(--accent)"
-                    strokeWidth="1.5"
-                    opacity="0.65"
-                    filter="url(#selected-node-glow)"
-                  />
-                )}
+  const categoryWidth = Math.min(
+    150,
+    categoryLabel.length * 6.5 + 42,
+  );
 
-                {/* Shadow */}
-                <rect
-                  x="0"
-                  y="6"
-                  width={width}
-                  height={height}
-                  rx="20"
-                  fill="black"
-                  opacity="0.16"
-                  filter="url(#node-shadow)"
-                />
+  return (
+    <g
+      key={node.id}
+      data-graph-node
+      transform={`
+        translate(
+          ${position.x - width / 2}
+          ${position.y - height / 2}
+        )
+      `}
+      className={dragging ? "cursor-grabbing" : "cursor-grab"}
+      onPointerDown={(event) =>
+        handleNodePointerDown(event, node)
+      }
+    >
+      {/* ==================================================
+          SELECTED NODE OUTLINE
+          ================================================== */}
 
-                {/* Main glass surface */}
-                <rect
-                  width={width}
-                  height={height}
-                  rx="20"
-                  fill={"var(--surface)"}
-                  fillOpacity="0.94"
-                  stroke={selected ? "var(--accent)" : "var(--border)"}
-                  strokeWidth={selected ? 1.5 : 1}
-                />
+      {selected && (
+        <rect
+          x="-7"
+          y="-7"
+          width={width + 14}
+          height={height + 14}
+          rx="22"
+          fill="none"
+          stroke="var(--accent)"
+          strokeWidth="1.5"
+          opacity="0.65"
+          filter="url(#selected-node-glow)"
+        />
+      )}
 
-                {/* Subtle node highlight */}
-                <rect
-                  x="1"
-                  y="1"
-                  width={width - 2}
-                  height={height - 2}
-                  rx="19"
-                  fill="none"
-                  stroke="white"
-                  strokeOpacity={selected ? 0.12 : 0.05}
-                  strokeWidth="1"
-                />
+      {/* ==================================================
+          NODE SHADOW
+          ================================================== */}
 
-                {/* ==================================================
-                      CATEGORY TAG
-                      ================================================== */}
+      <rect
+        x="0"
+        y="5"
+        width={width}
+        height={height}
+        rx="20"
+        fill="black"
+        opacity="0.14"
+        filter="url(#node-shadow)"
+      />
 
-                <g transform="translate(15 13)">
-                  <rect
-                    width={node.label.length * 6.5 + 28}
-                    height="21"
-                    rx="10.5"
-                    fill={`var(--node-${String(node.label).toLowerCase()}-bg)`}
-                    stroke={`var(--node-${String(
-                      node.label,
-                    ).toLowerCase()}-border)`}
-                    strokeWidth="1"
-                  />
+      {/* ==================================================
+          MAIN NODE
+          ================================================== */}
 
-                  <circle
-                    cx="9"
-                    cy="10.5"
-                    r="3"
-                    fill={`var(--node-${String(
-                      node.label,
-                    ).toLowerCase()}-accent)`}
-                  />
+      <rect
+        x="0"
+        y="0"
+        width={width}
+        height={height}
+        rx="20"
+        fill="var(--surface)"
+        fillOpacity="0.96"
+        stroke={
+          selected
+            ? "var(--accent)"
+            : "var(--border)"
+        }
+        strokeWidth={selected ? 1.5 : 1}
+      />
 
-                  <text
-                    x="17"
-                    y="14"
-                    fill="var(--text-secondary)"
-                    className="font-mono text-[8px] font-semibold tracking-[0.1em]"
-                  >
-                    {getNodeLabel(node.label)}
-                  </text>
-                </g>
+      {/* Subtle inner border */}
 
-                {/* ==================================================
-                      NODE NAME
-                      ================================================== */}
+      <rect
+        x="1"
+        y="1"
+        width={width - 2}
+        height={height - 2}
+        rx="19"
+        fill="none"
+        stroke="white"
+        strokeOpacity={selected ? 0.10 : 0.04}
+        strokeWidth="1"
+      />
 
-                <text
-                  x="17"
-                  y="57"
-                  fill="var(--text-primary)"
-                  className="text-[16px] font-semibold tracking-[-0.025em]"
-                >
-                  {node.name}
-                </text>
+      {/* ==================================================
+          LEVEL 1 — CATEGORY TAG
+          ================================================== */}
 
-                {/* ==================================================
-                      FOCUS BUTTON
-                      ================================================== */}
+      <g transform="translate(15 13)">
+        <rect
+          width={categoryWidth}
+          height="23"
+          rx="11.5"
+          fill={`var(--node-${category}-bg)`}
+          stroke={`var(--node-${category}-border)`}
+          strokeWidth="1"
+        />
 
-                <g
-                  data-node-focus
-                  transform={`
-                      translate(
-                        ${width - 69}
-                        ${height - 36}
-                      )
-                    `}
-                  role="button"
-                  tabIndex="0"
-                  aria-label={`Focus ${node.name}`}
-                  className="cursor-pointer"
-                  onPointerDown={(event) => {
-                    event.stopPropagation();
-                  }}
-                  onClick={(event) => {
-                    event.stopPropagation();
+        <circle
+          cx="10"
+          cy="11.5"
+          r="3"
+          fill={`var(--node-${category}-accent)`}
+        />
 
-                    onNodeSelect?.(node);
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
+        <text
+          x="18"
+          y="15"
+          fill="var(--text-secondary)"
+          className="
+            font-mono
+            text-[8px]
+            font-semibold
+            tracking-[0.1em]
+          "
+        >
+          {categoryLabel}
+        </text>
+      </g>
 
-                      onNodeSelect?.(node);
-                    }
-                  }}
-                >
-                  <rect
-                    width="54"
-                    height="24"
-                    rx="12"
-                    fill="var(--surface)"
-                    fillOpacity="0.72"
-                    stroke="var(--border)"
-                    strokeWidth="1"
-                  />
+      {/* ==================================================
+          LEVEL 2 — TITLE
+          ================================================== */}
 
-                  <circle
-                    cx="13"
-                    cy="12"
-                    r="3"
-                    fill="var(--accent)"
-                    opacity="0.85"
-                  />
+      <text
+        x="15"
+        y="67"
+        fill="var(--text-primary)"
+        className="
+          text-[17px]
+          font-semibold
+          tracking-[-0.025em]
+        "
+      >
+        {node.name}
+      </text>
 
-                  <text
-                    x="32"
-                    y="15.5"
-                    textAnchor="middle"
-                    fill="var(--text-secondary)"
-                    className="text-[8px] font-medium"
-                  >
-                    Focus
-                  </text>
-                </g>
-              </g>
-            );
-          })}
+      {/* ==================================================
+          LEVEL 3 — FULL WIDTH FOCUS BUTTON
+          ================================================== */}
+
+      <g
+        data-node-focus
+        transform={`translate(15 ${height - 39})`}
+        role="button"
+        tabIndex="0"
+        aria-label={`Focus ${node.name}`}
+        className="cursor-pointer"
+        onPointerDown={(event) => {
+          event.stopPropagation();
+        }}
+        onClick={(event) => {
+          event.stopPropagation();
+
+          onNodeSelect?.(node);
+        }}
+        onKeyDown={(event) => {
+          if (
+            event.key === "Enter" ||
+            event.key === " "
+          ) {
+            event.preventDefault();
+
+            onNodeSelect?.(node);
+          }
+        }}
+      >
+        <rect
+          width={width - 30}
+          height="25"
+          rx="12.5"
+          fill="var(--surface)"
+          fillOpacity="0.72"
+          stroke="var(--border)"
+          strokeWidth="1"
+        />
+
+        <circle
+          cx="12"
+          cy="12.5"
+          r="3"
+          fill="var(--accent)"
+          opacity="0.9"
+        />
+
+        <text
+          x="22"
+          y="16"
+          fill="var(--text-secondary)"
+          className="
+            text-[9px]
+            font-medium
+          "
+        >
+          Focus
+        </text>
+      </g>
+    </g>
+  );
+})}
         </g>
       </svg>
 

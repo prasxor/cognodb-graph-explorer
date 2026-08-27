@@ -54,11 +54,24 @@ button {
   --node-technology-border: rgba(13, 148, 136, 0.20);
   --node-technology-accent: #0f766e;
 }
-
+/* 
 @media (prefers-color-scheme: dark) {
   :root {
     --graph-canvas-bg: #090b10;
     --graph-canvas-surface: rgba(17, 20, 27, 0.72);
     --graph-canvas-grid: rgba(255, 255, 255, 0.07);
   }
+} */
+
+/* Disable browser text selection */
+* {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Keep form controls selectable/editable */
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
 }

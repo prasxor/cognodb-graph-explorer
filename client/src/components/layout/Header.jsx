@@ -1,31 +1,77 @@
+import { Moon, Sun } from "lucide-react";
 import Button from "../ui/Button";
 
 function Header({ onThemeToggle, isDark }) {
   return (
-    <header className="flex h-16 items-center justify-between px-6">
+    <header
+      className={[
+        "flex h-16 items-center justify-between px-6",
+        "border-b backdrop-blur-xl",
+        isDark
+          ? "border-[#232326] bg-[#141416]/90"
+          : "border-[#D9DDE3] bg-[#F8F9FB]/90",
+      ].join(" ")}
+    >
+      {/* Brand */}
       <div className="flex items-center gap-3">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--surface)] text-sm font-semibold">
+        <div
+          className={[
+            "flex h-8 w-8 items-center justify-center rounded-lg",
+            "text-sm font-semibold shadow-sm",
+            isDark
+              ? "bg-[#252529] text-[#F5F5F7]"
+              : "bg-[#E5E8ED] text-[#17181A]",
+          ].join(" ")}
+        >
           C
         </div>
 
-        <span className="text-sm font-medium">Cognodb</span>
+        <span
+          className={[
+            "text-sm font-semibold tracking-tight",
+            isDark ? "text-[#F5F5F7]" : "text-[#17181A]",
+          ].join(" ")}
+        >
+          Cognodb
+        </span>
       </div>
 
-      <button
-        type="button"
-        className="rounded-lg bg-[var(--surface)] px-4 py-2 text-xs text-[var(--text-secondary)] transition hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+      {/* Theme */}
+      <Button
+        variant="ghost"
+        onClick={onThemeToggle}
+        aria-label={
+          isDark
+            ? "Switch to light mode"
+            : "Switch to dark mode"
+        }
+        title={
+          isDark
+            ? "Light mode"
+            : "Dark mode"
+        }
+        className={[
+          "flex h-12 w-12 items-center justify-center",
+          "rounded-full p-0",
+          isDark
+            ? "text-[#F5F5F7] hover:bg-[#252529]"
+            : "text-[#34373C] hover:bg-[#E8EBEF]",
+        ].join(" ")}
       >
-        <span className="mr-2">⌘K</span>
-        Search
-      </button>
-
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" onClick={onThemeToggle}>
-          {isDark ? "Light" : "Dark"}
-        </Button>
-
-        <Button variant="primary">Explore</Button>
-      </div>
+        {isDark ? (
+          <Sun
+            size={25}
+            strokeWidth={1.8}
+            aria-hidden="true"
+          />
+        ) : (
+          <Moon
+            size={25}
+            strokeWidth={1.8}
+            aria-hidden="true"
+          />
+        )}
+      </Button>
     </header>
   );
 }
