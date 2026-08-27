@@ -46,8 +46,18 @@ function getEdgePoint(from, to, width, height) {
 
 function getCurve(source, target, sourceSize, targetSize, index) {
   // Offset target size slightly to make arrowheads touch the boundary cleanly
-  const start = getEdgePoint(source, target, sourceSize.width, sourceSize.height);
-  const end = getEdgePoint(target, source, targetSize.width + 12, targetSize.height + 12);
+  const start = getEdgePoint(
+    source,
+    target,
+    sourceSize.width,
+    sourceSize.height,
+  );
+  const end = getEdgePoint(
+    target,
+    source,
+    targetSize.width + 12,
+    targetSize.height + 12,
+  );
 
   const dx = end.x - start.x;
   const dy = end.y - start.y;
@@ -141,18 +151,54 @@ function GraphCanvas({ data, selectedNodeId, onNodeSelect }) {
     const selected = selectedNodeId
       ? nodes.find((node) => node.id === selectedNodeId)
       : null;
+
     const others = nodes.filter((node) => node.id !== selectedNodeId);
 
+    // Keep the focused node in the visual center.
     if (selected) {
-      result[selected.id] = { x: centerX, y: centerY };
+      result[selected.id] = {
+        x: centerX,
+        y: centerY,
+      };
     }
 
-    const radiusX = selected ? Math.min(280, dimensions.width * 0.28) : Math.min(320, dimensions.width * 0.32);
-    const radiusY = selected ? Math.min(180, dimensions.height * 0.22) : Math.min(220, dimensions.height * 0.26);
+    if (!others.length) return result;
+
+    /*
+     * Use a collision-resistant ring around the selected node.
+     *
+     * The previous layout used a relatively small elliptical radius,
+     * which caused the cards to stack on top of each other when the
+     * graph was first loaded or a developer was selected.
+     */
+    const count = others.length;
+
+    const nodeWidth = 190;
+    const nodeHeight = 132;
+    const horizontalGap = 70;
+    const verticalGap = 55;
+
+    const minRadiusX =
+      (nodeWidth + horizontalGap) / (2 * Math.sin(Math.PI / count));
+
+    const minRadiusY =
+      (nodeHeight + verticalGap) / (2 * Math.sin(Math.PI / count));
+
+    const availableRadiusX = Math.max(
+      260,
+      Math.min(460, dimensions.width * 0.38),
+    );
+
+    const availableRadiusY = Math.max(
+      220,
+      Math.min(340, dimensions.height * 0.36),
+    );
+
+    const radiusX = Math.max(minRadiusX, availableRadiusX);
+    const radiusY = Math.max(minRadiusY, availableRadiusY);
 
     others.forEach((node, index) => {
-      const angle =
-        (index / Math.max(others.length, 1)) * Math.PI * 2 - Math.PI / 2;
+      const angle = (index / count) * Math.PI * 2 - Math.PI / 2;
 
       result[node.id] = {
         x: centerX + Math.cos(angle) * radiusX,
@@ -165,14 +211,8 @@ function GraphCanvas({ data, selectedNodeId, onNodeSelect }) {
 
   // Sync positions state
   useEffect(() => {
-    setNodePositions((current) => {
-      const next = {};
-      nodes.forEach((node) => {
-        next[node.id] = current[node.id] ?? defaultPositions[node.id];
-      });
-      return next;
-    });
-  }, [nodes, defaultPositions]);
+  setNodePositions(defaultPositions);
+}, [defaultPositions]);
 
   const positions = useMemo(() => {
     const result = {};
@@ -203,7 +243,7 @@ function GraphCanvas({ data, selectedNodeId, onNodeSelect }) {
     if (selectedNodeId && positions[selectedNodeId]) {
       const nodePos = positions[selectedNodeId];
       const targetZoom = Math.max(0.85, Math.min(1.15, zoom));
-      
+
       setZoom(targetZoom);
       setPan({
         x: dimensions.width / 2 - nodePos.x * targetZoom,
@@ -217,8 +257,12 @@ function GraphCanvas({ data, selectedNodeId, onNodeSelect }) {
     const container = containerRef.current;
     if (!container) return;
     const preventDefault = (e) => e.preventDefault();
-    container.addEventListener("gesturestart", preventDefault, { passive: false });
-    container.addEventListener("gesturechange", preventDefault, { passive: false });
+    container.addEventListener("gesturestart", preventDefault, {
+      passive: false,
+    });
+    container.addEventListener("gesturechange", preventDefault, {
+      passive: false,
+    });
     return () => {
       container.removeEventListener("gesturestart", preventDefault);
       container.removeEventListener("gesturechange", preventDefault);
@@ -241,7 +285,10 @@ function GraphCanvas({ data, selectedNodeId, onNodeSelect }) {
       setZoom((currentZoom) => {
         const sensitivity = event.ctrlKey ? 0.012 : 0.0016;
         const factor = Math.exp(-event.deltaY * sensitivity);
-        const nextZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, currentZoom * factor));
+        const nextZoom = Math.min(
+          MAX_ZOOM,
+          Math.max(MIN_ZOOM, currentZoom * factor),
+        );
 
         if (nextZoom === currentZoom) return currentZoom;
 
@@ -324,7 +371,10 @@ function GraphCanvas({ data, selectedNodeId, onNodeSelect }) {
       if (pinchDistance && pinchDistance > 0) {
         const factor = distance / pinchDistance;
         setZoom((currentZoom) => {
-          const nextZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, currentZoom * factor));
+          const nextZoom = Math.min(
+            MAX_ZOOM,
+            Math.max(MIN_ZOOM, currentZoom * factor),
+          );
           if (nextZoom === currentZoom) return currentZoom;
 
           const worldX = (cursorX - pan.x) / currentZoom;
@@ -407,9 +457,10 @@ function GraphCanvas({ data, selectedNodeId, onNodeSelect }) {
   }
 
   // Animation settings
-  const canvasTransition = (isPanning || draggingNodeId || prefersReducedMotion)
-    ? { type: "tween", duration: 0 }
-    : { type: "spring", stiffness: 300, damping: 30, mass: 0.8 };
+  const canvasTransition =
+    isPanning || draggingNodeId || prefersReducedMotion
+      ? { type: "tween", duration: 0 }
+      : { type: "spring", stiffness: 300, damping: 30, mass: 0.8 };
 
   return (
     <div
@@ -429,7 +480,10 @@ function GraphCanvas({ data, selectedNodeId, onNodeSelect }) {
       onContextMenu={(event) => event.preventDefault()}
     >
       {/* ambient backgrounds */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+      <div
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+        aria-hidden="true"
+      >
         <div className="absolute left-[15%] top-[10%] h-[300px] w-[300px] rounded-full bg-blue-500/[0.04] dark:bg-blue-500/[0.03] blur-[120px] transition-all" />
         <div className="absolute right-[10%] top-[25%] h-[260px] w-[260px] rounded-full bg-purple-500/[0.03] dark:bg-purple-500/[0.02] blur-[110px] transition-all" />
         <div className="absolute bottom-[5%] left-[35%] h-[320px] w-[320px] rounded-full bg-teal-500/[0.03] dark:bg-teal-500/[0.02] blur-[130px] transition-all" />
@@ -500,14 +554,17 @@ function GraphCanvas({ data, selectedNodeId, onNodeSelect }) {
               target,
               sourceSize,
               targetSize,
-              index
+              index,
             );
 
             const label = String(relationship.type ?? "RELATES_TO");
 
             return (
               <g
-                key={relationship.id ?? `${relationship.source}-${relationship.target}-${index}`}
+                key={
+                  relationship.id ??
+                  `${relationship.source}-${relationship.target}-${index}`
+                }
                 className="transition-all duration-300"
                 style={{
                   opacity: isActive ? 1 : 0.15,
@@ -515,7 +572,13 @@ function GraphCanvas({ data, selectedNodeId, onNodeSelect }) {
                 }}
               >
                 {/* Underlay curve for selectability */}
-                <path d={path} fill="none" stroke="transparent" strokeWidth="12" className="pointer-events-auto cursor-pointer" />
+                <path
+                  d={path}
+                  fill="none"
+                  stroke="transparent"
+                  strokeWidth="12"
+                  className="pointer-events-auto cursor-pointer"
+                />
 
                 {/* Base curve */}
                 <path
@@ -578,15 +641,17 @@ function GraphCanvas({ data, selectedNodeId, onNodeSelect }) {
 
             const isNodeSelected = node.id === selectedNodeId;
             const isNodeConnected = connectedNodeIds.has(node.id);
-            const isNodeActive = !isFocusMode || isNodeSelected || isNodeConnected;
+            const isNodeActive =
+              !isFocusMode || isNodeSelected || isNodeConnected;
             const isNodeDragging = draggingNodeId === node.id;
 
             const category = String(node.label ?? "Node").toLowerCase();
             const categoryLabel = getNodeLabel(node.label);
 
-            const nodeTransition = (isNodeDragging || prefersReducedMotion)
-              ? { type: "tween", duration: 0 }
-              : { type: "spring", stiffness: 300, damping: 30 };
+            const nodeTransition =
+              isNodeDragging || prefersReducedMotion
+                ? { type: "tween", duration: 0 }
+                : { type: "spring", stiffness: 300, damping: 30 };
 
             return (
               <motion.g
@@ -642,7 +707,9 @@ function GraphCanvas({ data, selectedNodeId, onNodeSelect }) {
                           `bg-[var(--node-${category}-bg)] border-[var(--node-${category}-border)] text-[var(--node-${category}-accent)]`,
                         ].join(" ")}
                       >
-                        <span className={`h-1.5 w-1.5 rounded-full bg-[var(--node-${category}-accent)]`} />
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full bg-[var(--node-${category}-accent)]`}
+                        />
                         {categoryLabel}
                       </div>
                     </div>
@@ -662,7 +729,10 @@ function GraphCanvas({ data, selectedNodeId, onNodeSelect }) {
                       className="w-full flex items-center justify-center gap-1 h-7 mt-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--background)] text-[9px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition focus:outline-none focus:ring-1.5 focus:ring-[var(--accent)] cursor-pointer"
                     >
                       Focus
-                      <ArrowUpRight size={10} className="text-[var(--text-secondary)]" />
+                      <ArrowUpRight
+                        size={10}
+                        className="text-[var(--text-secondary)]"
+                      />
                     </button>
                   </motion.div>
                 </foreignObject>
