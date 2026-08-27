@@ -36,3 +36,29 @@ body {
 button {
   font: inherit;
 }
+
+:root {
+  --graph-canvas-bg: #f4f6f9;
+  --graph-canvas-surface: rgba(255, 255, 255, 0.72);
+  --graph-canvas-grid: rgba(15, 23, 42, 0.08);
+
+  --node-developer-bg: rgba(37, 99, 235, 0.10);
+  --node-developer-border: rgba(37, 99, 235, 0.22);
+  --node-developer-accent: #2563eb;
+
+  --node-project-bg: rgba(124, 58, 237, 0.08);
+  --node-project-border: rgba(124, 58, 237, 0.20);
+  --node-project-accent: #7c3aed;
+
+  --node-technology-bg: rgba(13, 148, 136, 0.08);
+  --node-technology-border: rgba(13, 148, 136, 0.20);
+  --node-technology-accent: #0f766e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --graph-canvas-bg: #090b10;
+    --graph-canvas-surface: rgba(17, 20, 27, 0.72);
+    --graph-canvas-grid: rgba(255, 255, 255, 0.07);
+  }
+}
