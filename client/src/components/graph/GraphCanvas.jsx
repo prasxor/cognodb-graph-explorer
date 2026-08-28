@@ -211,8 +211,8 @@ function GraphCanvas({ data, selectedNodeId, onNodeSelect }) {
 
   // Sync positions state
   useEffect(() => {
-  setNodePositions(defaultPositions);
-}, [defaultPositions]);
+    setNodePositions(defaultPositions);
+  }, [defaultPositions]);
 
   const positions = useMemo(() => {
     const result = {};
@@ -434,11 +434,17 @@ function GraphCanvas({ data, selectedNodeId, onNodeSelect }) {
   };
 
   const resetView = () => {
+    dragRef.current = null;
+    pointersRef.current.clear();
+
+    setDraggingNodeId(null);
+    setIsPanning(false);
+    setPinchDistance(null);
+
     setZoom(1);
     setPan({ x: 0, y: 0 });
     setNodePositions(defaultPositions);
   };
-
   const isFocusMode = !!selectedNodeId;
 
   if (!nodes.length) {
@@ -707,9 +713,9 @@ function GraphCanvas({ data, selectedNodeId, onNodeSelect }) {
                           `bg-[var(--node-${category}-bg)] border-[var(--node-${category}-border)] text-[var(--node-${category}-accent)]`,
                         ].join(" ")}
                       >
-                        <span
+                        {/* <span
                           className={`h-1.5 w-1.5 rounded-full bg-[var(--node-${category}-accent)]`}
-                        />
+                        /> */}
                         {categoryLabel}
                       </div>
                     </div>
@@ -765,7 +771,13 @@ function GraphCanvas({ data, selectedNodeId, onNodeSelect }) {
       {/* Reset view control button */}
       <button
         type="button"
-        onClick={resetView}
+        onPointerDown={(event) => {
+          event.stopPropagation();
+        }}
+        onClick={(event) => {
+          event.stopPropagation();
+          resetView();
+        }}
         className="absolute bottom-5 right-5 z-10 rounded-full border border-[var(--border)] bg-[var(--surface)]/80 px-4 py-2 text-[9px] font-semibold text-[var(--text-primary)] shadow-sm backdrop-blur-xl transition hover:-translate-y-0.5 hover:bg-[var(--surface)] focus:outline-none focus-visible:ring-1.5 focus-visible:ring-[var(--accent)] cursor-pointer"
       >
         Reset view
