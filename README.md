@@ -22,7 +22,7 @@ Pick a developer, follow their connections outward, and inspect every relationsh
 ---
 
 ### Video Link
-Check out the [Live Demo](https://example.com) of this project.
+Check out the [Live Demo]([https://example.com](https://youtu.be/6X_8dFX_9KM)) of this project.
 
 ---
 ### Core experience
