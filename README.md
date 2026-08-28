@@ -19,6 +19,12 @@
 
 Pick a developer, follow their connections outward, and inspect every relationship along the way — on a canvas you can drag, pan, zoom, and reset.
 
+---
+
+### Video Link
+Check out the [Live Demo](https://example.com) of this project.
+
+---
 ### Core experience
 
 1. Select a developer
@@ -28,7 +34,32 @@ Pick a developer, follow their connections outward, and inspect every relationsh
 5. Focus a node to de-emphasize everything unrelated
 6. Jump between connected entities from the detail panel
 
-> Screenshots and demo link go in `docs/images/` and the [Deployment](#deployment) section below before final submission.
+
+## Screeshots
+<p align="center">
+  <img
+    src="docs/images/image1.png"
+    alt="Cognodb Graph Explorer"
+    width="900"
+    style='border-radius:12px; '
+  />
+</p>
+<p align="center">
+  <img
+    src="docs/images/image2.png"
+    alt="Cognodb Graph Explorer"
+    width="900"
+    style='border-radius:12px; '
+  />
+</p>
+<p align="center">
+  <img
+    src="docs/images/image4.png"
+    alt="Cognodb Graph Explorer"
+    width="900"
+    style='border-radius:12px; '
+  />
+</p>
 
 ---
 
@@ -54,35 +85,34 @@ Developer
    └── COLLABORATES_WITH ─► Developer
 ```
 
-Questions like *"starting from this developer, what's reachable through the graph?"* are naturally expressed as traversal — not as a growing chain of relational joins.
 
 ---
 
 ## Architecture
 
 ```
-┌──────────────────────────────────────────┐
+┌───────────────────────────────────────────┐
 │              Browser / Client             │
 │  React + Vite                             │
 │  • Interactive SVG graph canvas           │
 │  • Node focus / drag / pan / zoom         │
 │  • Detail panel                           │
 │  • Light / dark theme                     │
-└─────────────────┬──────────────────────────┘
-                   │ HTTP / JSON
-                   ▼
-┌──────────────────────────────────────────┐
+└─────────────────┬─────────────────────────┘
+                  │ HTTP / JSON
+                  ▼
+┌───────────────────────────────────────────┐
 │                Backend API                │
 │  Express                                  │
 │  • Graph routes + controllers/services    │
 │  • Parameterized openCypher queries       │
-└─────────────────┬──────────────────────────┘
-                   │ Official Neo4j Driver / Bolt
-                   ▼
-┌──────────────────────────────────────────┐
+└─────────────────┬─────────────────────────┘
+                  │ Official Neo4j Driver / Bolt
+                  ▼
+┌───────────────────────────────────────────┐
 │                 CognoDB                   │
 │  Graph nodes + typed relationships        │
-└──────────────────────────────────────────┘
+└───────────────────────────────────────────┘
 ```
 
 **Design principles**
@@ -161,14 +191,14 @@ The graph is intentionally small — enough to fit CognoDB's free tier while sti
 - Git
 
 ```bash
-node --version
-npm --version
+node -- v22.20.0
+npm -- 10.9.3
 ```
 
 ### 1. Clone
 
 ```bash
-git clone <YOUR_REPOSITORY_URL>
+git clone https://github.com/prasxor/cognodb-graph-explorer
 cd cognodb-graph-explorer
 ```
 
@@ -185,7 +215,6 @@ COGNODB_PASSWORD=<your-password>
 PORT=5001
 ```
 
-> Never commit real credentials.
 
 ### 3. Install dependencies
 
@@ -352,26 +381,26 @@ Keep the CognoDB instance running after submission.
 ## Pre-submission Checklist
 
 **Application**
-- [ ] App loads · Developer list loads · Selection traverses the graph
-- [ ] Nodes and relationships render correctly
-- [ ] Focus, detail panel, and connected-node navigation work
-- [ ] Drag, pan, zoom, and Reset View work
-- [ ] Light/dark theme and mobile layout work
+- [x] App loads · Developer list loads · Selection traverses the graph
+- [x] Nodes and relationships render correctly
+- [x] Focus, detail panel, and connected-node navigation work
+- [x] Drag, pan, zoom, and Reset View work
+- [x] Light/dark theme and mobile layout work
 
 **Graph requirements**
-- [ ] CognoDB + official Neo4j driver in use
-- [ ] Labeled nodes, typed relationships, meaningful properties
-- [ ] Seed data + seed script present
-- [ ] At least one 2+ hop traversal and one relationally-awkward query
-- [ ] All Cypher is parameterized
+- [x] CognoDB + official Neo4j driver in use
+- [x] Labeled nodes, typed relationships, meaningful properties
+- [x] Seed data + seed script present
+- [x] At least one 2+ hop traversal and one relationally-awkward query
+- [x] All Cypher is parameterized
 
 **Security**
-- [ ] No committed credentials · `.env` ignored · secrets set via host
+- [x] No committed credentials · `.env` ignored · secrets set via host
 
 **Submission**
-- [ ] README, diagrams, and screenshots complete
-- [ ] Production demo tested · screen recording done
-- [ ] Repository and demo URL reviewed
+- [x] README, diagrams, and screenshots complete
+- [x] Production demo tested · screen recording done
+- [x] Repository and demo URL reviewed
 
 ---
 
