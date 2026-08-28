@@ -295,7 +295,7 @@ function DetailPanel({
       variants={variants}
       transition={transition}
       className={[
-        "flex shrink-0 flex-col ml-3 h-full",
+        "flex shrink-0 flex-col ml-3 h-full rounded-[14px]",
         "border-[var(--border)]",
         "bg-[var(--surface)]",
         "text-[var(--text-primary)]",
