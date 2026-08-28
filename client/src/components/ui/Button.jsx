@@ -15,7 +15,7 @@ function Button({
 
   return (
     <button
-      className={`rounded-lg px-4 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-[var(--accent)] ${variants[variant]} ${className}`}
+      className={`rounded-lg text-sm transition focus:outline-none focus:ring-2 focus:ring-[var(--accent)] ${variants[variant]} ${className}`}
       {...props}
     >
       {children}

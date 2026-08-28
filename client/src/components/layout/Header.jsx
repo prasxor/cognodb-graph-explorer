@@ -6,10 +6,8 @@ function Header({ onThemeToggle, isDark }) {
     <header
       className={[
         "flex h-16 items-center justify-between px-6",
-        "border-b backdrop-blur-xl",
-        isDark
-          ? "border-[#232326] bg-[#141416]/90"
-          : "border-[#D9DDE3] bg-[#F8F9FB]/90",
+        "border-b backdrop-blur-xl transition-colors duration-300",
+        "border-[var(--border)] bg-[var(--surface)]/90",
       ].join(" ")}
     >
       {/* Brand */}
@@ -17,10 +15,8 @@ function Header({ onThemeToggle, isDark }) {
         <div
           className={[
             "flex h-8 w-8 items-center justify-center rounded-lg",
-            "text-sm font-semibold shadow-sm",
-            isDark
-              ? "bg-[#252529] text-[#F5F5F7]"
-              : "bg-[#E5E8ED] text-[#17181A]",
+            "text-sm font-semibold shadow-sm transition-colors duration-300",
+            "bg-[var(--border)] text-[var(--text-primary)]",
           ].join(" ")}
         >
           C
@@ -28,11 +24,11 @@ function Header({ onThemeToggle, isDark }) {
 
         <span
           className={[
-            "text-sm font-semibold tracking-tight",
-            isDark ? "text-[#F5F5F7]" : "text-[#17181A]",
+            "text-sm font-semibold tracking-tight transition-colors duration-300",
+            "text-[var(--text-primary)]",
           ].join(" ")}
         >
-          Cognodb
+          Cognodb Graph Explorer
         </span>
       </div>
 
@@ -51,23 +47,21 @@ function Header({ onThemeToggle, isDark }) {
             : "Dark mode"
         }
         className={[
-          "flex h-12 w-12 items-center justify-center",
-          "rounded-full p-0",
-          isDark
-            ? "text-[#F5F5F7] hover:bg-[#252529]"
-            : "text-[#34373C] hover:bg-[#E8EBEF]",
+          "flex h-10 w-10 items-center justify-center",
+          "rounded-full p-0 transition-colors duration-300",
+          "text-[var(--text-primary)] hover:bg-[var(--border)]/50",
         ].join(" ")}
       >
         {isDark ? (
           <Sun
-            size={25}
-            strokeWidth={1.8}
+            size={18}
+            strokeWidth={2}
             aria-hidden="true"
           />
         ) : (
           <Moon
-            size={25}
-            strokeWidth={1.8}
+            size={18}
+            strokeWidth={2}
             aria-hidden="true"
           />
         )}
